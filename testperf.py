@@ -10,6 +10,9 @@ from argparse import ArgumentParser
 """ =========== *Remember to import your agent!!! =========== """
 from randomplayer import RandomPlayer
 # from smartwarrior import SmartWarrior
+
+from group14_player import Group14Player
+
 """ ========================================================= """
 
 """ Example---To run testperf.py with random warrior AI against itself. 
@@ -20,7 +23,7 @@ $ python testperf.py -n1 "Random Warrior 1" -a1 RandomPlayer -n2 "Random Warrior
 def testperf(agent_name1, agent1, agent_name2, agent2):		
 
 	# Init to play 500 games of 1000 rounds
-	num_game = 500
+	num_game = 20
 	max_round = 1000
 	initial_stack = 10000
 	smallblind_amount = 20
@@ -33,10 +36,13 @@ def testperf(agent_name1, agent1, agent_name2, agent2):
 	config = setup_config(max_round=max_round, initial_stack=initial_stack, small_blind_amount=smallblind_amount)
 	
 	# Register players
-	config.register_player(name=agent_name1, algorithm=RandomPlayer())
-	config.register_player(name=agent_name2, algorithm=RandomPlayer())
+	# config.register_player(name=agent_name1, algorithm=RandomPlayer())
+	#config.register_player(name=agent_name2, algorithm=RandomPlayer())
 	# config.register_player(name=agent_name1, algorithm=agent1())
-	# config.register_player(name=agent_name2, algorithm=agent2())
+	#config.register_player(name=agent_name2, algorithm=agent2())
+
+	config.register_player(name=agent_name1, algorithm=agent1)
+	config.register_player(name=agent_name2, algorithm=agent2)
 	
 
 	# Start playing num_game games
@@ -66,9 +72,9 @@ def testperf(agent_name1, agent1, agent_name2, agent2):
 
 def parse_arguments():
     parser = ArgumentParser()
-    parser.add_argument('-n1', '--agent_name1', help="Name of agent 1", default="Your agent", type=str)
-    parser.add_argument('-a1', '--agent1', help="Agent 1", default=RandomPlayer())    
-    parser.add_argument('-n2', '--agent_name2', help="Name of agent 2", default="Your agent", type=str)
+    parser.add_argument('-n1', '--agent_name1', help="Name of agent 1", default="Group14 agent", type=str)
+    parser.add_argument('-a1', '--agent1', help="Agent 1", default=Group14Player())    
+    parser.add_argument('-n2', '--agent_name2', help="Name of agent 2", default="Random agent", type=str)
     parser.add_argument('-a2', '--agent2', help="Agent 2", default=RandomPlayer())    
     args = parser.parse_args()
     return args.agent_name1, args.agent1, args.agent_name2, args.agent2

@@ -9,10 +9,12 @@ class Group14Player(BasePokerPlayer):
                  monte_carlo_trials=100,
                  aggression_thresholds=(0.70, 0.60, 0.57, 0.53),
                  call_threshold_margin=0.045,
+                 raise_stack_fraction=0.55,
                  bluff_probability=0.04):
         self.MonteCarloTrials = monte_carlo_trials
         self.AggressionThresholds = aggression_thresholds
         self.CallThresholdMargin = call_threshold_margin
+        self.RaiseStackFraction = raise_stack_fraction
         self.BluffProbability = bluff_probability
 
     def declare_action(self, valid_actions, hole_cards, game_state):
@@ -31,7 +33,13 @@ class Group14Player(BasePokerPlayer):
 
         raise_info = next((a for a in valid_actions if a['action'] == 'raise'), None)
         if raise_info and (equity >= self.AggressionThresholds[street_index] or random.random() < self.BluffProbability):
-            return 'raise'
+            raise_range = raise_info.get('amount')
+            if isinstance(raise_range, dict):
+                min_raise, max_raise = raise_range['min'], raise_range['max']
+                raise_amount = int(min(self.RaiseStackFraction * stack, 0.8 * pot_size, max_raise))
+                return ('raise', max(min_raise, raise_amount))
+            else:
+                return 'raise'
 
         return 'call'
 
@@ -40,17 +48,20 @@ class Group14Player(BasePokerPlayer):
         wins, ties = 0, 0
 
         for _ in range(self.MonteCarloTrials):
-            drawn = random.sample(full_deck, 2 + (5 - len(board_cards)))
-            opponent = drawn[:2]
-            full_board = board_cards + drawn[2:]
+            drawn = random.sample(full_deck, (player_count - 1) * 2 + (5 - len(board_cards)))
+            opponents = [drawn[2 * i:2 * i + 2] for i in range(player_count - 1)]
+            full_board = board_cards + drawn[(player_count - 1) * 2:]
 
-            my_score = self._evaluate_hand(hole_cards + full_board)
-            opp_score = self._evaluate_hand(opponent + full_board)
+            score = self._evaluate_hand(hole_cards + full_board)
+            opp_scores = [self._evaluate_hand(op + full_board) for op in opponents]
+            top = max([score] + opp_scores)
 
-            if my_score > opp_score:
-                wins += 1
-            elif my_score == opp_score:
-                ties += 0.5  
+            if score == top:
+                split = opp_scores.count(top)
+                if split == 0:
+                    wins += 1
+                else:
+                    ties += 1 / (split + 1)
 
         return (wins + ties) / self.MonteCarloTrials
 

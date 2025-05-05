@@ -8,10 +8,10 @@ from argparse import ArgumentParser
 
 
 """ =========== *Remember to import your agent!!! =========== """
-from randomplayer import RandomPlayer
+from group14_player import Group14Player
 # from smartwarrior import SmartWarrior
 
-from group14_player import Group14Player
+from group14_player_initial import Group14PlayerInitial
 
 """ ========================================================= """
 
@@ -23,7 +23,7 @@ $ python testperf.py -n1 "Random Warrior 1" -a1 RandomPlayer -n2 "Random Warrior
 def testperf(agent_name1, agent1, agent_name2, agent2):		
 
 	# Init to play 500 games of 1000 rounds
-	num_game = 20
+	num_game = 500
 	max_round = 1000
 	initial_stack = 10000
 	smallblind_amount = 20
@@ -74,8 +74,8 @@ def parse_arguments():
     parser = ArgumentParser()
     parser.add_argument('-n1', '--agent_name1', help="Name of agent 1", default="Group14 agent", type=str)
     parser.add_argument('-a1', '--agent1', help="Agent 1", default=Group14Player())    
-    parser.add_argument('-n2', '--agent_name2', help="Name of agent 2", default="Random agent", type=str)
-    parser.add_argument('-a2', '--agent2', help="Agent 2", default=RandomPlayer())    
+    parser.add_argument('-n2', '--agent_name2', help="Name of agent 2", default="Group14 agent Initial", type=str)
+    parser.add_argument('-a2', '--agent2', help="Agent 2", default=Group14PlayerInitial())    
     args = parser.parse_args()
     return args.agent_name1, args.agent1, args.agent_name2, args.agent2
 
